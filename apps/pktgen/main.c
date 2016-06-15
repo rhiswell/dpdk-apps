@@ -126,38 +126,6 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 /* Number of TX ring descriptors */
 #define NB_TXD                  512
 
-/*
- * RX and TX Prefetch, Host, and Write-back threshold values should be
- * carefully set for optimal performance. Consult the network
- * controller's datasheet and supporting DPDK documentation for guidance
- * on how these parameters should be set.
- */
-/* RX ring configuration */
-static const struct rte_eth_rxconf rx_conf = {
-	.rx_thresh = {
-		.pthresh = 8,   /* Ring prefetch threshold */
-		.hthresh = 8,   /* Ring host threshold */
-		.wthresh = 4,   /* Ring writeback threshold */
-	},
-	.rx_free_thresh = 0,    /* Immediately free RX descriptors */
-};
-
-/*
- * These default values are optimized for use with the Intel(R) 82599 10 GbE
- * Controller and the DPDK ixgbe PMD. Consider using other values for other
- * network controllers and/or network drivers.
- */
-/* TX ring configuration */
-static const struct rte_eth_txconf tx_conf = {
-	.tx_thresh = {
-		.pthresh = 36,  /* Ring prefetch threshold */
-		.hthresh = 0,   /* Ring host threshold */
-		.wthresh = 0,   /* Ring writeback threshold */
-	},
-	.tx_free_thresh = 0,    /* Use PMD default values */
-	.tx_rs_thresh = 0,      /* Use PMD default values */
-};
-
 /* Options for configuring ethernet port */
 static const struct rte_eth_conf port_conf = {
 	.rxmode = {
@@ -1089,7 +1057,7 @@ init_port(uint8_t port, uint8_t nb_queues)
 
 		ret = rte_eth_rx_queue_setup(port, queue, NB_RXD,
 					     rte_eth_dev_socket_id(port),
-					     &rx_conf, pktmbuf_pool);
+					     NULL, pktmbuf_pool);
 		if (ret < 0)
 			FATAL_ERROR("Could not setup up RX queue for "
 				    "port%u queue%u (%d)",
@@ -1102,7 +1070,7 @@ init_port(uint8_t port, uint8_t nb_queues)
 
 		ret = rte_eth_tx_queue_setup(port, queue, NB_TXD,
 					     rte_eth_dev_socket_id(port),
-					     &tx_conf);
+					     NULL);
 		if (ret < 0)
 			FATAL_ERROR("Could not setup up TX queue for "
 				    "port%u queue%u (%d)",
