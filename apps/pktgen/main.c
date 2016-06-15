@@ -104,13 +104,6 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 /* Max queues that can be used (each queue is associated with exactly one lcore) */
 #define MAX_QUEUES		16
 
-/* Max size of a single packet */
-#define MAX_PACKET_SZ           2048
-
-/* Number of bytes needed for each mbuf */
-#define MBUF_SZ \
-	(MAX_PACKET_SZ + sizeof(struct rte_mbuf) + RTE_PKTMBUF_HEADROOM)
-
 /* Number of mbufs in mempool that is created */
 #define NB_MBUF                 8192
 
@@ -118,7 +111,7 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 #define PKT_BURST_SZ            32
 
 /* How many objects (mbufs) to keep in per-lcore mempool cache */
-#define MEMPOOL_CACHE_SZ        PKT_BURST_SZ
+#define MBUF_CACHE_SIZE         250
 
 /* Number of RX ring descriptors */
 #define NB_RXD                  128
@@ -1165,11 +1158,10 @@ main(int argc, char *argv[])
 	parse_args(argc, argv);
 
 	/* Create the mbuf pool */
-	pktmbuf_pool = rte_mempool_create("mbuf_pool", NB_MBUF, MBUF_SZ,
-			MEMPOOL_CACHE_SZ,
-			sizeof(struct rte_pktmbuf_pool_private),
-			rte_pktmbuf_pool_init, NULL, rte_pktmbuf_init, NULL,
-			rte_socket_id(), 0);
+	pktmbuf_pool = rte_pktmbuf_pool_create("mbuf_pool", NB_MBUF,
+					       MBUF_CACHE_SIZE, 0,
+					       RTE_MBUF_DEFAULT_BUF_SIZE,
+					       rte_socket_id());
 	if (pktmbuf_pool == NULL) {
 		FATAL_ERROR("Could not initialise mbuf pool");
 		return (-1);
