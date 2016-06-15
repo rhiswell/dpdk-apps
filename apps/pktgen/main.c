@@ -692,13 +692,15 @@ main_loop(__attribute__((unused)) void *arg)
 static void
 print_usage(const char *prgname)
 {
-	PRINT_INFO("\nUsage: %s [EAL options] -- -f tx|rx -t tracelist -b\n"
-	           "    -t traicelist : trace list to send\n"
-	           "    -p packet size: packet size to generate (udp only)\n"
-	           "    -b burst size : burst size to use\n"
-	           "    -l loop count : number of loops to loop in each tx\n"
-	           "    -i interval   : interval during two update stats\n"
-	           "    -f tx|rx      : function to use\n",
+	PRINT_INFO("\nUsage: %s [EAL options] -- -c config [-f tx|rx]\n"
+	           "    -b burst size  : burst size\n"
+	           "    -c config      : config file\n"
+	           "    -f tx|rx       : tx or rx\n"
+	           "    -h             : help\n"
+	           "    -i interval    : interval between two stats updating\n"
+	           "    -l loop count  : number of loops to loop after each tx\n"
+	           "    -p packet size : packet size (udp only)\n"
+	           "    -t tracelist   : trace file list\n",
 	           prgname);
 }
 
@@ -964,8 +966,18 @@ parse_args(int argc, char **argv)
 	opterr = 0;
 
 	/* Parse command line */
-	while ((opt = getopt(argc, argv, "f:t:p:b:l:i:c:h")) != -1) {
+	while ((opt = getopt(argc, argv, "b:c:f:i:l:p:t:h")) != -1) {
 		switch (opt) {
+		case 'b':
+			sscanf(optarg, "%d", &opt_burst_size);
+			break;
+
+		case 'c':
+			parse_config_file(optarg);
+			if (tracefilelist[0] != '\0')
+				init_trace_file_cache(tracefilelist);
+			break;
+
 		case 'f':
 			if (strcmp(optarg, "tx") == 0)
 				func = TX;
@@ -975,6 +987,23 @@ parse_args(int argc, char **argv)
 				print_usage(prgname);
 				FATAL_ERROR("Invalid option for -f specified");
 			}
+			break;
+
+		case 'h':
+			print_usage(prgname);
+			exit(EXIT_SUCCESS);
+			break;
+
+		case 'i':
+			sscanf(optarg, "%d", &opt_interval);
+			break;
+
+		case 'l':
+			sscanf(optarg, "%d", &opt_loop_count);
+			break;
+
+		case 'p':
+			sscanf(optarg, "%d", &opt_pkt_size);
 			break;
 
 		case 't':
@@ -987,33 +1016,6 @@ parse_args(int argc, char **argv)
 			 */
 			if (nb_cores_conf != 0)
 				init_trace_file_cache(tracefilelist);
-			break;
-
-		case 'p':
-			sscanf(optarg, "%d", &opt_pkt_size);
-			break;
-
-		case 'b':
-			sscanf(optarg, "%d", &opt_burst_size);
-			break;
-
-		case 'l':
-			sscanf(optarg, "%d", &opt_loop_count);
-			break;
-
-		case 'i':
-			sscanf(optarg, "%d", &opt_interval);
-			break;
-
-		case 'c':
-			parse_config_file(optarg);
-			if (tracefilelist[0] != '\0')
-				init_trace_file_cache(tracefilelist);
-			break;
-		
-		case 'h':
-			print_usage(prgname);
-			exit(EXIT_SUCCESS);
 			break;
 
 		default:
