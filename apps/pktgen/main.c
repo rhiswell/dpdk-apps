@@ -2,9 +2,7 @@
  *   BSD LICENSE
  *
  *   Copyright(c) 2010-2014 Intel Corporation. All rights reserved.
- *   All rights reserved.
- *   Copyright(c) 2014-2015 Tiwei Bie (btw@FreeBSD.org). All rights reserved.
- *   All rights reserved.
+ *   Copyright(c) 2014-2016 Tiwei Bie (btw@FreeBSD.org). All rights reserved.
  *
  *   Redistribution and use in source and binary forms, with or without
  *   modification, are permitted provided that the following conditions
