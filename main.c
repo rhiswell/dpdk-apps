@@ -81,7 +81,7 @@
 
 static bool build_udp_packet(char *buf, int *pkt_size, uint64_t *seed);
 static bool build_tcp_packet(char *buf, int *pkt_size,
-		 __attribute__((unused)) uint64_t *seed);
+			     __attribute__((unused)) uint64_t *seed);
 
 #ifndef __FAVOR_BSD
 #define __FAVOR_BSD /* For uh_ prefix in struct udphdr */
@@ -93,29 +93,29 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 
 /* Macros for printing using RTE_LOG */
 #define RTE_LOGTYPE_APP RTE_LOGTYPE_USER1
-#define FATAL_ERROR(fmt, args...)       rte_exit(EXIT_FAILURE, fmt "\n", ##args)
-#define PRINT_INFO(fmt, args...)        RTE_LOG(INFO, APP, fmt "\n", ##args)
+#define FATAL_ERROR(fmt, args...)	rte_exit(EXIT_FAILURE, fmt "\n", ##args)
+#define PRINT_INFO(fmt, args...)	RTE_LOG(INFO, APP, fmt "\n", ##args)
 
 /* Max ports that can be used (each port is associated with at least one lcore) */
-#define MAX_PORTS               RTE_MAX_LCORE
+#define MAX_PORTS		RTE_MAX_LCORE
 
 /* Max queues that can be used (each queue is associated with exactly one lcore) */
 #define MAX_QUEUES		16
 
 /* Number of mbufs in mempool that is created */
-#define NB_MBUF                 8192
+#define NB_MBUF			8192
 
 /* How many packets to attempt to read from NIC in one go */
-#define PKT_BURST_SZ            32
+#define PKT_BURST_SZ		32
 
 /* How many objects (mbufs) to keep in per-lcore mempool cache */
-#define MBUF_CACHE_SIZE         250
+#define MBUF_CACHE_SIZE		250
 
 /* Number of RX ring descriptors */
-#define NB_RXD                  128
+#define NB_RXD			128
 
 /* Number of TX ring descriptors */
-#define NB_TXD                  512
+#define NB_TXD			512
 
 /* Options for configuring ethernet port */
 static const struct rte_eth_conf port_conf = {
@@ -293,9 +293,9 @@ update_rx_stats(int count)
 	bps = ((rx_bytes + rx_pkts * 24) * 8.0) / sec_diff;
 
 	printf("Lcore %2u: %2.3f Mpps, %3.3f Gbps "
-		"(%ld packets per chunk) in %6.4f sec\n",
-		lcore_id, pps / 1000000.0, bps / 1000000000.0,
-		lcore_stats[lcore_id].rx_pkts / count, sec_diff);
+	       "(%ld packets per chunk) in %6.4f sec\n",
+	       lcore_id, pps / 1000000.0, bps / 1000000000.0,
+	       lcore_stats[lcore_id].rx_pkts / count, sec_diff);
 
 	last_time[lcore_id] = tv;
 }
@@ -328,9 +328,9 @@ update_tx_stats(int count)
 	bps = ((tx_bytes + tx_pkts * 24) * 8.0) / sec_diff;
 
 	printf("Lcore %2u: %2.3f Mpps, %3.3f Gbps "
-		"(%ld packets per chunk) in %6.4f sec\n",
-		lcore_id, pps / 1000000.0, bps / 1000000000.0,
-		lcore_stats[lcore_id].tx_pkts / count, sec_diff);
+	       "(%ld packets per chunk) in %6.4f sec\n",
+	       lcore_id, pps / 1000000.0, bps / 1000000000.0,
+	       lcore_stats[lcore_id].tx_pkts / count, sec_diff);
 
 	last_time[lcore_id] = tv;
 }
@@ -386,7 +386,7 @@ dump_packet(char *buf, int pkt_size)
 	TEST_INT(ip->ip_ttl);
 
 	printf("ip->ip_p: %s\n", ip->ip_p == IPPROTO_UDP ? "udp" :
-				(ip->ip_p == IPPROTO_TCP ? "tcp" : "unknown"));
+			(ip->ip_p == IPPROTO_TCP ? "tcp" : "unknown"));
 
 #define TEST_IP(m) printf("%s: %d.%d.%d.%d\n", #m, \
 		(m & 0xff000000) >> 24, (m & 0x00ff0000) >> 16, \
@@ -521,7 +521,7 @@ build_tcp_packet(char *buf, int *pkt_size,
 
 	if (caplen > MAX_PKT_LEN) {
 		fprintf(stderr, "Wrong packet length %u at offset %lu in %s\n",
-		       caplen, fc->offset, fc->filename);
+			caplen, fc->offset, fc->filename);
 		exit(EXIT_FAILURE);
 	}
 
@@ -586,15 +586,15 @@ main_loop(__attribute__((unused)) void *arg)
 
 	if (func == RX) {
 		PRINT_INFO("Lcore %u is reading from port %u, queue %u",
-		           lcore_id, port_id, queue_id);
+			   lcore_id, port_id, queue_id);
 		fflush(stdout);
 		/* Loop forever reading from NIC */
 		for (;;) {
 			struct rte_mbuf *pkts_burst[PKT_BURST_SZ];
 			unsigned i;
 			const unsigned nb_rx =
-					rte_eth_rx_burst(port_id, queue_id,
-					    pkts_burst, PKT_BURST_SZ);
+				rte_eth_rx_burst(port_id, queue_id,
+						 pkts_burst, PKT_BURST_SZ);
 			lcore_stats[lcore_id].rx_pkts += nb_rx;
 			for (i = 0; likely(i < nb_rx); i++) {
 				struct rte_mbuf *m = pkts_burst[i];
@@ -617,7 +617,7 @@ main_loop(__attribute__((unused)) void *arg)
 		}
 	} else {
 		PRINT_INFO("Lcore %u is writing to port %u, queue %u",
-		           lcore_id, port_id, queue_id);
+			   lcore_id, port_id, queue_id);
 		fflush(stdout);
 		/* Loop writing to NIC */
 		while (likely(looping)) {
@@ -693,54 +693,16 @@ static void
 print_usage(const char *prgname)
 {
 	PRINT_INFO("\nUsage: %s [EAL options] -- -c config [-f tx|rx]\n"
-	           "    -b burst size  : burst size\n"
-	           "    -c config      : config file\n"
-	           "    -f tx|rx       : tx or rx\n"
-	           "    -h             : help\n"
-	           "    -i interval    : interval between two stats updating\n"
-	           "    -l loop count  : number of loops to loop after each tx\n"
-	           "    -p packet size : packet size (udp only)\n"
-	           "    -t tracelist   : trace file list\n",
-	           prgname);
+		   "    -b burst size  : burst size\n"
+		   "    -c config      : config file\n"
+		   "    -f tx|rx       : tx or rx\n"
+		   "    -h             : help\n"
+		   "    -i interval    : interval between two stats updating\n"
+		   "    -l loop count  : number of loops to loop after each tx\n"
+		   "    -p packet size : packet size (udp only)\n"
+		   "    -t tracelist   : trace file list\n",
+		   prgname);
 }
-
-/*
-static void
-parse_cores_and_ports(const char *optarg)
-{
-	unsigned lcore_id, port_id;
-	char *p;
-
-	while ((p = strchr(optarg, ',')) != NULL) {
-		*p = '\0';
-		sscanf(optarg, "%u:%u", &lcore_id, &port_id);
-		port_ids[lcore_id] = port_id;
-		cores_mask |= (1 << lcore_id);
-		optarg = p + 1;
-	}
-	sscanf(optarg, "%u:%u", &lcore_id, port_id);
-	port_ids[lcore_id] = port_id;
-	cores_mask |= (1 << lcore_id);
-}
-
-static uint64_t
-parse_cores_and_queues(const char *optarg)
-{
-	unsigned lcore_id, queue_id;
-	char *p;
-
-	while ((p = strchr(optarg, ',')) != NULL) {
-		*p = '\0';
-		sscanf(optarg, "%u:%u", &lcore_id, &queue_id);
-		queue_ids[lcore_id] = queue_id;
-		cores_mask |= (1 << lcore_id);
-		optarg = p + 1;
-	}
-	sscanf(optarg, "%u:%u", &lcore_id, port_id);
-	port_ids[lcore_id] = port_id;
-	cores_mask |= (1 << lcore_id);
-}
-*/
 
 static bool
 check_pcap(struct file_cache *fc)
@@ -880,7 +842,7 @@ parse_config_file(const char *filename)
 			continue;
 #ifdef DEBUG_CONFIG_FILE
 		printf("core_id = %d, port_id = %d, queue_id = %d\n",
-			core_id, port_id, queue_id);
+		       core_id, port_id, queue_id);
 #endif
 		cores_conf[nb_cores_conf].core_id  = core_id;
 		cores_conf[nb_cores_conf].port_id  = port_id;
@@ -1042,7 +1004,7 @@ init_port(uint8_t port, uint8_t nb_queues)
 	ret = rte_eth_dev_configure(port, nb_queues, nb_queues, &port_conf);
 	if (ret < 0)
 		FATAL_ERROR("Could not configure port%u (%d)",
-		            (unsigned)port, ret);
+			    (unsigned)port, ret);
 
 	for (queue = 0; queue < nb_queues; queue++) {
 		if (!((1ULL << queue) & queues_masks[port]))
@@ -1099,13 +1061,13 @@ check_all_ports_link_status(uint8_t port_num, uint32_t port_mask)
 			if (print_flag == 1) {
 				if (link.link_status)
 					printf("Port %d Link Up - speed %u "
-						"Mbps - %s\n", (uint8_t)portid,
-						(unsigned)link.link_speed,
-				(link.link_duplex == ETH_LINK_FULL_DUPLEX) ?
-					("full-duplex") : ("half-duplex\n"));
+					       "Mbps - %s\n", (uint8_t)portid,
+					       (unsigned)link.link_speed,
+					       (link.link_duplex == ETH_LINK_FULL_DUPLEX) ?
+							("full-duplex") : ("half-duplex\n"));
 				else
 					printf("Port %d Link Down\n",
-						(uint8_t)portid);
+					       (uint8_t)portid);
 				continue;
 			}
 			/* clear all_ports_up flag if any link down */
@@ -1170,9 +1132,7 @@ main(int argc, char *argv[])
 	/* Get number of ports found in scan */
 	nb_sys_ports = rte_eth_dev_count();
 	if (nb_sys_ports == 0)
-		FATAL_ERROR("No supported Ethernet devices found - check that "
-		            "CONFIG_RTE_LIBRTE_IGB_PMD=y and/or "
-		            "CONFIG_RTE_LIBRTE_IXGBE_PMD=y in the config file");
+		FATAL_ERROR("No supported Ethernet devices found");
 	printf("number of ports: %d\n", nb_sys_ports);
 
 	/* Initialise each port */
@@ -1184,9 +1144,9 @@ main(int argc, char *argv[])
 
 		nb_queues = 0;
 		for (bit = 0; bit < 8*sizeof(uint64_t); bit++)
-			nb_queues += ((queues_masks[port] >> bit) & 1);
+		     nb_queues += ((queues_masks[port] >> bit) & 1);
 		printf("number of queues enabled for port%u: %d\n",
-			port, nb_queues);
+		       port, nb_queues);
 
 		init_port(port, nb_queues);
 	}

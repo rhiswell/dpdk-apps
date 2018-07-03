@@ -35,4 +35,4 @@ correctly, so pcap files should be sent in correct order.
 
 ## Acknowledge
 
-Thanks to @btw616 for his amazing work [dpdk-pktgen](https://github.com/btw616/dpdk-apps).
+Thanks to [@btw616](https://github.com/btw616) for his amazing work [dpdk-pktgen](https://github.com/btw616/dpdk-apps).
