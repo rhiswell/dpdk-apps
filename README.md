@@ -1,37 +1,38 @@
 
-Usage (Linux)
-=============
+DPDK pktgen
+===========
+K.I.S.S
 
-## Build DPDK
+## Build and run
 
-	make config T=x86_64-native-linuxapp-gcc
-	make
+	make RTE_SDK=/path/to/dpdk-sdk RTE_TARGET=build
+	sudo ./build/pktgen -c fff -n 4 -- -c config -b 1 -f tx              # Send udp packets
+	sudo ./build/pktgen -c fff -n 4 -- -c config -b 1 -f tx -t tracelist # Send tcp packets from pcap file
+	sudo ./build/pktfen -c fff -n 4 -- -c config -b 1 -f rx
 
-## Setup DPDK Environment
+## Configuration file
 
-	modprobe uio
-	insmod ./build/kmod/igb_uio.ko
-	./tools/dpdk_nic_bind.py --status
-	./tools/dpdk_nic_bind.py -b igb_uio 07:00.0 07:00.1 # Get from --status
-		# restore: ./tools/dpdk_nic_bind.py -b ixgbe 07:00.0 07:00.1
-	mkdir -p /mnt/huge
-	mount -t hugetlbfs nodev /mnt/huge
-	echo 64 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+	#
+	# There are six cores and two ports are used.
+	# And there are three queues enabled for each port.
+	#
+	
+	# Settings for NIC-0
+	core_id=0,port_id=0,queue_id=0 # CPU0 manages the queue 0 of NIC-0
+	core_id=1,port_id=0,queue_id=1
+	core_id=2,port_id=0,queue_id=2
+	
+	# Settings for NIC-1
+	core_id=3,port_id=1,queue_id=0
+	core_id=4,port_id=1,queue_id=1
+	core_id=5,port_id=1,queue_id=2
 
 
-Usage (FreeBSD)
-===============
+## Notice
 
-## Build DPDK
+To replay tcp packets, all packets in pcap files should be sent in order
+correctly, so pcap files should be sent in correct order.
 
-	gmake config T=x86_64-native-bsdapp-clang
-	gmake
+## Acknowledge
 
-## Setup DPDK Environment
-
-	kenv hw.nic_uio.bdfs=66:0:0,66:0:1
-	kldload ./build/kmod/nic_uio.ko
-	kenv hw.contigmem.num_buffers=1
-	kenv hw.contigmem.buffer_size=1073741824
-	kldload ./build/kmod/contigmem.ko
-
+Thanks to @btw616 for his amazing work [dpdk-pktgen](https://github.com/btw616/dpdk-apps).
