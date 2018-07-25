@@ -99,6 +99,8 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 /* Max ports that can be used (each port is associated with at least one lcore) */
 #define MAX_PORTS		RTE_MAX_LCORE
 
+#define MAX_LCORE		64
+
 /* Max queues that can be used (each queue is associated with exactly one lcore) */
 #define MAX_QUEUES		16
 
@@ -245,7 +247,7 @@ print_stats(void)
 		RTE_LCORE_FOREACH(i) {
 			if (!((1ULL << i) & cores_mask)) {
 				printf("%6u %7c %8c %12c %15c\n",
-				       i, '-', '-', '-', '-');
+				i, '-', '-', '-', '-');
 				continue;
 			}
 			lcore_stats[i].tx_total_pkts  += lcore_stats[i].tx_pkts;
@@ -784,7 +786,7 @@ init_trace_file_cache(const char *tracefilelist)
 		}
 
 		do {
-			rr = (rr + 1) % RTE_MAX_LCORE;
+			rr = (rr + 1) % MAX_LCORE;
 		} while (!((1ULL << rr) & cores_mask));
 
 		fc->next = lcore_file_cache[rr];
