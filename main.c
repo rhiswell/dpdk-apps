@@ -99,8 +99,6 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 /* Max ports that can be used (each port is associated with at least one lcore) */
 #define MAX_PORTS		RTE_MAX_LCORE
 
-#define MAX_LCORE		64
-
 /* Max queues that can be used (each queue is associated with exactly one lcore) */
 #define MAX_QUEUES		16
 
@@ -114,7 +112,7 @@ static bool build_tcp_packet(char *buf, int *pkt_size,
 #define MBUF_CACHE_SIZE		250
 
 /* Number of RX ring descriptors */
-#define NB_RXD			128
+#define NB_RXD			512
 
 /* Number of TX ring descriptors */
 #define NB_TXD			512
@@ -247,7 +245,7 @@ print_stats(void)
 		RTE_LCORE_FOREACH(i) {
 			if (!((1ULL << i) & cores_mask)) {
 				printf("%6u %7c %8c %12c %15c\n",
-				i, '-', '-', '-', '-');
+				       i, '-', '-', '-', '-');
 				continue;
 			}
 			lcore_stats[i].tx_total_pkts  += lcore_stats[i].tx_pkts;
@@ -786,7 +784,7 @@ init_trace_file_cache(const char *tracefilelist)
 		}
 
 		do {
-			rr = (rr + 1) % MAX_LCORE;
+			rr = (rr + 1) % RTE_MAX_LCORE;
 		} while (!((1ULL << rr) & cores_mask));
 
 		fc->next = lcore_file_cache[rr];
@@ -1118,6 +1116,8 @@ main(int argc, char *argv[])
 	argc -= ret;
 	argv += ret;
 
+	rte_pdump_init(NULL);
+
 	/* Parse application arguments (after the EAL ones) */
 	parse_args(argc, argv);
 
@@ -1162,6 +1162,8 @@ main(int argc, char *argv[])
 	}
 
 	print_stats();
+
+	rte_pdump_uninit();
 
 	return (1);
 }
